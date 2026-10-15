@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>แบบทดสอบสวัสดิภาพสัตว์น้ำ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: single centered column, one question per screen, KST quiz console. Deep-sea teal on cool paper. */
+:root{
+  --bg:#f2f6f7; --surface:#ffffff; --fg:#14262b; --muted:#5b7077; --line:#d5e0e3;
+  --accent:#0d5c6b; --accent-fg:#ffffff; --accent-soft:#dff0f3;
+  --good:#1b7a4b; --good-soft:#e1f3e9; --bad:#b3342b; --bad-soft:#fbe7e5; --warn:#a56200; --warn-soft:#fdf0d9;
+  --font-display:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+  --font-body:"Noto Sans Thai","IBM Plex Sans Thai",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1a1e; --surface:#14262b; --fg:#e6f0f2; --muted:#93aab1; --line:#27414a;
+  --accent:#5cc3d4; --accent-fg:#06222a; --accent-soft:#17383f;
+  --good:#5fd29b; --good-soft:#12342a; --bad:#ff8b80; --bad-soft:#40201e; --warn:#f0b957; --warn-soft:#3a2d12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1a1e; --surface:#14262b; --fg:#e6f0f2; --muted:#93aab1; --line:#27414a;
+  --accent:#5cc3d4; --accent-fg:#06222a; --accent-soft:#17383f;
+  --good:#5fd29b; --good-soft:#12342a; --bad:#ff8b80; --bad-soft:#40201e; --warn:#f0b957; --warn-soft:#3a2d12; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.65 var(--font-body);padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto}
+header.top{display:flex;align-items:center;gap:12px;padding:18px 0 14px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.mark{font:700 15px var(--font-display);letter-spacing:.08em;background:var(--accent);color:var(--accent-fg);padding:6px 10px;border-radius:4px}
+.top .t{min-width:0;flex:1}
+.top .t b{display:block;font:600 16px/1.3 var(--font-display)}
+.top .t span{font-size:13px;color:var(--muted)}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:26px} h2{font-size:21px} h3{font-size:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:14px}
+label{display:block;font:600 14px var(--font-display);margin-bottom:6px}
+input[type=text],select{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+input:focus-visible,select:focus-visible,button:focus-visible,.opt:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{font:600 15px var(--font-display);padding:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}
+.seg button small{font:400 12px var(--font-body);color:var(--muted)}
+.seg button[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.btn{font:600 16px var(--font-display);padding:12px 20px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.rules{margin:0;padding-left:20px;color:var(--muted);font-size:14px}
+.rules li+li{margin-top:2px}
+/* quiz */
+.prog{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.chip{display:inline-block;font:600 12px var(--font-display);letter-spacing:.02em;color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:99px}
+.q{font:600 18px/1.55 var(--font-display);margin:10px 0 16px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:var(--bg)}
+.opt input{margin-top:6px;accent-color:var(--accent);flex:none}
+.opt .l{font:600 14px var(--font-display);color:var(--muted);flex:none;width:22px;padding-top:2px}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+.dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.dots button{width:30px;height:30px;border-radius:5px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font:600 12px var(--font-display);cursor:pointer;font-variant-numeric:tabular-nums}
+.dots button.done{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.dots button.cur{outline:2px solid var(--accent);outline-offset:1px}
+/* result */
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .n{font:700 54px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.badge{font:600 14px var(--font-display);padding:4px 12px;border-radius:99px}
+.badge.pass{background:var(--good-soft);color:var(--good)} .badge.fail{background:var(--bad-soft);color:var(--bad)} .badge.base{background:var(--accent-soft);color:var(--accent)}
+.tbar{display:grid;grid-template-columns:minmax(0,1fr) 60px;gap:4px 12px;align-items:center}
+.tbar .nm{font-size:14px;min-width:0}
+.tbar .v{font:600 14px var(--font-display);text-align:right;font-variant-numeric:tabular-nums}
+.tbar .tr{grid-column:1/-1;height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.tbar .tr i{display:block;height:100%}
+.rev{border-top:1px solid var(--line);padding-top:16px}
+.exp{font-size:14px;color:var(--muted);margin-top:8px}
+.notice{padding:12px 14px;border-radius:6px;background:var(--warn-soft);color:var(--warn);font-size:14px}
+.okmsg{padding:12px 14px;border-radius:6px;background:var(--good-soft);color:var(--good);font-size:14px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font:600 13px var(--font-display);color:var(--muted);background:var(--bg)}
+.tabs{display:flex;gap:8px;margin-left:auto}
+.tabs button{font:600 13px var(--font-display);padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.stats div{padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.stats b{display:block;font:700 24px var(--font-display);font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--muted)}
+@media (max-width:480px){.seg{grid-template-columns:1fr} h1{font-size:22px} .score .n{font-size:44px}}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+body{margin:0}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="mark">KST</span>
+    <div class="t"><b>แบบทดสอบสวัสดิภาพสัตว์น้ำ</b><span>ฝ่ายจัดซื้อวัตถุดิบ (PR) · อ้างอิง FM-PR-28 · BAP 6.0 Module 4 (AW6)</span></div>
+    <div class="tabs" id="tabs" hidden>
+      <button id="tabExam" aria-pressed="true">ทำข้อสอบ</button>
+      <button id="tabAdmin" aria-pressed="false">ผลการสอบ</button>
+    </div>
+  </header>
+
+  <main id="main"></main>
+</div>
+
+<script>
+/* ---------- ข้อมูลหัวข้อ ---------- */
+var TOPICS=[
+ {n:"ชนิดพันธุ์ ความต้องการ และพฤติกรรม",ref:"PM-PR-05 ข้อ 2, 4"},
+ {n:"ยานพาหนะ อุปกรณ์ และระบบให้ออกซิเจน",ref:"SP-PR-08 ข้อ 4-5, WI-PR-15 ข้อ 6"},
+ {n:"การจับต้อง การล้อมจับ และเปลี่ยนถ่ายน้ำ",ref:"SP-PR-08 ข้อ 6-7"},
+ {n:"ความเครียดและโรคของสัตว์น้ำ",ref:"SP-PR-08 ข้อ 3, PM-PR-05 ข้อ 3, 7"},
+ {n:"วิธีการที่ไม่เป็นที่ยอมรับ",ref:"PM-PR-05 ข้อ 3, SP-PR-08 ข้อ 5-6"},
+ {n:"การจัดทำและรักษาบันทึกข้อมูล",ref:"PM-PR-05 ข้อ 8, FM-PR-28"}
+];
+var GROUPS=["พนักงานขนส่ง / ตรวจรับกุ้งเป็น (PR/QC)","พนักงานฝ่ายผลิต (PD/QC)","ผู้จัดการ / ผู้ทบทวนรายสัปดาห์ (PR)","พนักงานผู้ส่งมอบ (แพ)"];
+var PASS_PCT=80;
+/* ตั้งค่า: ใส่ URL ปลายทางรับผล (Power Automate HTTP / Google Apps Script Web App) เพื่อส่งผลอัตโนมัติ เว้นว่างไว้ = ไม่ส่ง */
+var RESULT_ENDPOINT="https://script.google.com/macros/s/AKfycbwgeIDTd7eJl5QZVRZmoWCbdgsv1DGPu3PiMnDrgRTXk8EhsYl5dHX8FBUs5J4KCEHN0Q/exec";
+
+/* รูปแบบ: t=หัวข้อ(0-5), q=คำถาม, o=[ตัวเลือกที่ถูก, ผิด, ผิด, ผิด], e=คำอธิบาย (ตัวเลือกจะถูกสลับลำดับอัตโนมัติทุกครั้ง) */
+var BANK={
+pre:[
+ {t:0,q:"กุ้งที่บริษัทรับซื้อในสถานะ “กุ้งเป็น” ได้แก่ชนิดใด?",o:["กุ้งขาวแวนนาไมและกุ้งกุลาดำ","กุ้งแม่น้ำและกุ้งมังกร","กุ้งเป็นทุกชนิดโดยไม่จำกัด","เฉพาะกุ้งกุลาดำเท่านั้น"],e:"PM-PR-05 ข้อ 2 ระบุขอบเขตเฉพาะกุ้งขาวแวนนาไมและกุ้งกุลาดำที่ยังมีชีวิต"},
+ {t:0,q:"ความต้องการพื้นฐานของสัตว์น้ำมีชีวิตที่ต้องดูแลระหว่างจับและขนส่ง ได้แก่ข้อใด?",o:["น้ำ ออกซิเจน และอุณหภูมิ","แสงสว่าง และเสียง","สีของภาชนะ และกลิ่น","ชนิดอาหารที่ให้ก่อนจับ"],e:"หัวข้อ (1) เน้นความต้องการพื้นฐานของสัตว์น้ำมีชีวิต ได้แก่ น้ำ ออกซิเจน และอุณหภูมิ"},
+ {t:0,q:"การคัดแยกกุ้งเป็นที่จุดรับซื้อ ควรปฏิบัติอย่างไร?",o:["คัดด้วยมืออย่างรวดเร็วและนุ่มนวล ลดเวลาที่กุ้งอยู่นอกน้ำ","คัดช้า ๆ ให้ละเอียด แม้กุ้งจะอยู่นอกน้ำนาน","เทกุ้งลงพื้นเพื่อคัดแยกให้ง่าย","ใช้น้ำปริมาณน้อยเพื่อประหยัด"],e:"จากวิดีโอปฏิบัติงานจริง: คัดแยกเร็วและนุ่มนวล ใช้น้ำสะอาดเพียงพอ และลดเวลานอกน้ำให้น้อยที่สุด"},
+ {t:1,q:"ระดับออกซิเจนละลายน้ำ (DO) ระหว่างขนส่งกุ้งเป็นต้องไม่ต่ำกว่าเท่าใด?",o:["5 มก./ล.","2 มก./ล.","3 มก./ล.","8 มก./ล."],e:"SP-PR-08 ข้อ 5 กำหนด DO ไม่ต่ำกว่า 5 มก./ล. ตลอดการเดินทาง"},
+ {t:1,q:"ระบบให้อากาศ/ออกซิเจนในถังขนส่งต้องทำงานเมื่อใด?",o:["ตลอดเวลาการเดินทาง","เฉพาะตอนบรรจุกุ้งลงถัง","เปิดเป็นช่วง ๆ เพื่อประหยัดพลังงาน","เฉพาะเมื่อพบว่ากุ้งผิดปกติ"],e:"WI-PR-15 / SP-PR-08: ระบบให้อากาศหรือออกซิเจนต้องทำงานตลอดเวลาการเดินทาง"},
+ {t:1,q:"ควรตรวจวัดและบันทึกอุณหภูมิน้ำด้วยเครื่องวัดกันน้ำเมื่อใด?",o:["ก่อนและระหว่างขนส่งทุกครั้ง","เฉพาะเมื่อถึงปลายทาง","เฉพาะเมื่อพบกุ้งตาย","ไม่จำเป็นต้องบันทึก"],e:"ต้องตรวจวัดและบันทึกอุณหภูมิน้ำก่อนและระหว่างขนส่งทุกครั้ง"},
+ {t:2,q:"ข้อใดเป็นการปฏิบัติที่ถูกต้องขณะขนขึ้น-ขนลงสัตว์น้ำมีชีวิต?",o:["ดำเนินการรวดเร็วต่อเนื่อง ไม่โยน ทิ้ง หรือเหยียบสัตว์","โยนภาชนะเพื่อความรวดเร็ว","กองซ้อนภาชนะให้ได้มากที่สุด","ปล่อยให้สัตว์อยู่นอกน้ำนานเพื่อประหยัดเวลา"],e:"SP-PR-08 ข้อ 7 ห้ามโยน ทิ้ง หรือเหยียบสัตว์ และต้องรวดเร็วต่อเนื่อง"},
+ {t:2,q:"การล้อมจับ (Crowding) ต้องดำเนินการอย่างไร?",o:["ทำเป็นขั้นตอน เพื่อลดการตอบสนองต่อความเครียด","ทำให้เร็วที่สุดโดยไม่คำนึงถึงสัตว์","รวบสัตว์ให้แน่นที่สุดในครั้งเดียว","ปล่อยให้สัตว์ค้างที่มุมบ่อนาน ๆ"],e:"SP-PR-08 ข้อ 6: การล้อมจับต้องเป็นขั้นตอน เพื่อลดความเครียดและระยะเวลาที่สัตว์อยู่นอกน้ำ"},
+ {t:2,q:"ควรสัมผัสตัวสัตว์โดยตรงในระดับใดตลอดกระบวนการ?",o:["ให้น้อยที่สุด","ให้มากที่สุดเพื่อตรวจทุกตัว","ไม่มีข้อกำหนด","เฉพาะตอนขนลง"],e:"หัวข้อ (3): ลดการสัมผัสตัวสัตว์โดยตรงให้น้อยที่สุดตลอดกระบวนการ"},
+ {t:3,q:"หากพบสัตว์น้ำแสดงอาการป่วยหรือพฤติกรรมผิดปกติก่อนจับ ต้องปฏิบัติอย่างไร?",o:["ไม่ขนส่งสัตว์น้ำนั้น และแสดงตัวอย่างให้บริษัทพิจารณาก่อนตกลงซื้อ","ขนส่งตามปกติ","ผสมรวมกับสัตว์น้ำปกติ","รายงานภายหลังการขนส่งเสร็จสิ้น"],e:"SP-PR-08 ข้อ 3 ห้ามขนส่งสัตว์ป่วย/ผิดปกติ และต้องแสดงตัวอย่างก่อนตกลงซื้อทุกครั้ง"},
+ {t:3,q:"สัญญาณความเครียดของกุ้งที่ต้องสังเกตระหว่างจับและขนส่งคือข้อใด?",o:["สีเปลี่ยนหรือว่ายผิดปกติ","ว่ายสม่ำเสมอและสีปกติ","ตอบสนองต่อการสัมผัสได้ดี","ตัวมีสีสดใส"],e:"หัวข้อ (4): สังเกตสัญญาณความเครียด เช่น สีเปลี่ยน ว่ายผิดปกติ เพื่อปรับกระบวนการจับ-ขนส่งทันที"},
+ {t:3,q:"ต้องแสดงตัวอย่างกุ้งให้บริษัทพิจารณาเมื่อใด?",o:["ก่อนตกลงซื้อทุกครั้ง","เฉพาะครั้งแรกของฤดูกาล","หลังขนส่งถึงโรงงาน","เฉพาะเมื่อบริษัทร้องขอ"],e:"SP-PR-08 ข้อ 3: ต้องแสดงตัวอย่างกุ้งเป็นดิบและกุ้งหลังต้มก่อนตกลงซื้อทุกครั้ง"},
+ {t:4,q:"ข้อใดเป็นวิธีการที่ห้ามใช้โดยเด็ดขาดตามนโยบายสวัสดิภาพสัตว์?",o:["การใช้ก๊าซคาร์บอนไดออกไซด์ในน้ำเพื่อทำให้สัตว์สลบหรือตาย","การทำให้สลบด้วยไฟฟ้าอย่างมีประสิทธิภาพ","การพักสัตว์ในน้ำสะอาด","การควบคุมอุณหภูมิน้ำให้เหมาะสม"],e:"PM-PR-05 ข้อ 3 ห้ามใช้ CO₂ ในน้ำโดยเด็ดขาด"},
+ {t:4,q:"ข้อใดจัดเป็นวิธีการที่ไม่เป็นที่ยอมรับ (Inhumane Treatment)?",o:["ปล่อยให้สัตว์ขาดอากาศหายใจในอากาศ","การพักสัตว์ในน้ำสะอาด","การให้อากาศอย่างต่อเนื่อง","การควบคุมอุณหภูมิน้ำ"],e:"PM-PR-05 ข้อ 3: ห้ามปล่อยให้สัตว์ขาดอากาศหายใจในอากาศ"},
+ {t:4,q:"สารใดที่ห้ามใช้เพื่อทำให้สัตว์สลบหรือตาย?",o:["เกลือหรือแอมโมเนีย","การเปลี่ยนถ่ายน้ำสะอาด","การล้อมจับเป็นขั้นตอน","การให้ออกซิเจนต่อเนื่อง"],e:"PM-PR-05 ข้อ 3 และ SP-PR-08: ห้ามใช้เกลือหรือแอมโมเนีย"},
+ {t:5,q:"ต้องจัดเก็บบันทึกด้านสวัสดิภาพสัตว์ (เช่น FM-PR-28) ย้อนหลังอย่างน้อยกี่ปี?",o:["2 ปี","6 เดือน","1 ปี","5 ปี"],e:"PM-PR-05 ข้อ 8 กำหนดจัดเก็บย้อนหลังไม่น้อยกว่า 2 ปี ณ ฝ่ายจัดซื้อวัตถุดิบ"},
+ {t:5,q:"แบบบันทึก FM-PR-26 ใช้บันทึกเรื่องใด?",o:["การขนส่ง","การทบทวนรายสัปดาห์","การฝึกอบรม","การตรวจติดตามผู้ส่งมอบ"],e:"FM-PR-26 คือบันทึกการขนส่ง (FM-PR-27 ทบทวนรายสัปดาห์ · FM-PR-28 ฝึกอบรม · FM-PR-29 ตรวจติดตามผู้ส่งมอบ)"},
+ {t:5,q:"การฝึกอบรมด้านสวัสดิภาพสัตว์ต้องจัดเมื่อใด?",o:["ก่อนเริ่มปฏิบัติงาน และทบทวนอย่างน้อยปีละ 1 ครั้ง หรือเมื่อมีการเปลี่ยนแปลงกระบวนการ/ข้อกำหนด","อบรมครั้งเดียวเมื่อเข้าทำงาน","ทุก 5 ปี","เมื่อตรวจประเมินพบปัญหาเท่านั้น"],e:"เกณฑ์ใน FM-PR-28: อบรมก่อนเริ่มปฏิบัติงานและทบทวนอย่างน้อยปีละ 1 ครั้ง"}
+],
+post:[
+ {t:0,q:"ข้อใดไม่อยู่ในขอบเขตของ PM-PR-05 (Module 4 Animal Welfare)?",o:["กุ้งดอง (Iced/Soaked Shrimp) ที่สิ้นชีวิตก่อนขนส่ง","การขนส่งกุ้งเป็นจากฟาร์ม","การพักสัตว์ก่อนฆ่า","การทำให้สลบก่อนฆ่า"],e:"กุ้งดองสิ้นชีวิตก่อนเริ่มขนส่ง จึงอยู่นอกขอบเขต Module 4 ตามข้อ 2.0 ของมาตรฐาน"},
+ {t:0,q:"เหตุใดกุ้งดอง (Iced/Soaked Shrimp) จึงอยู่นอกขอบเขต Module 4?",o:["สิ้นชีวิตก่อนเริ่มขนส่ง","มีราคาต่ำกว่ากุ้งเป็น","มีขนาดเล็กเกินไป","ผู้ส่งมอบอยู่ต่างประเทศ"],e:"Module 4 ครอบคลุมสัตว์น้ำที่ยังมีชีวิต กุ้งดองสิ้นชีวิตก่อนเริ่มขนส่ง (PM-PR-05 ข้อ 2, 4)"},
+ {t:0,q:"น้ำในภาชนะคัดแยกที่ขั้นตอนตรวจรับต้องเป็นอย่างไร?",o:["สะอาดและมีปริมาณเพียงพอตลอดขั้นตอนตรวจรับ","ใช้น้ำเดิมซ้ำจนกว่าจะคัดเสร็จ","มีปริมาณน้อยเพื่อให้คัดง่าย","ไม่มีข้อกำหนด"],e:"จากวิดีโอปฏิบัติงานจริงหัวข้อ (1): น้ำต้องสะอาดและมีปริมาณเพียงพอตลอดขั้นตอนตรวจรับ"},
+ {t:1,q:"ต้องควบคุมระยะเวลาอดอาหารก่อนจับและขนส่งไม่เกินกี่ชั่วโมง?",o:["72 ชั่วโมง","24 ชั่วโมง","48 ชั่วโมง","96 ชั่วโมง"],e:"SP-PR-08 ข้อ 4 กำหนดไม่เกิน 72 ชั่วโมง"},
+ {t:1,q:"ทุกถังพักมีท่อให้อากาศแยกอิสระเพื่อวัตถุประสงค์ใด?",o:["รักษา DO ไม่ต่ำกว่า 5 มก./ล. ตลอดการขนส่ง","ให้ถังมีรูปร่างสวยงาม","ลดน้ำหนักถัง","ให้หลายถังใช้น้ำร่วมกันได้"],e:"จากภาพปฏิบัติงานจริงหัวข้อ (2): ท่ออากาศแยกอิสระช่วยรักษา DO ไม่ต่ำกว่า 5 มก./ล."},
+ {t:1,q:"ปัจจัยในข้อใดที่ต้องควบคุมระหว่างบรรจุและขนส่งกุ้งเป็น?",o:["ความหนาแน่นในการบรรจุ อุณหภูมิน้ำ และระดับ DO","สีภาชนะ ขนาดรถ และเวลาออกเดินทาง","ราคากุ้ง ชนิดอาหาร และฤดูกาล","จำนวนพนักงานและชื่อผู้ส่งมอบ"],e:"SP-PR-08 ข้อ 4-5: ควบคุมความหนาแน่น อุณหภูมิน้ำ และ DO"},
+ {t:2,q:"การล้อมจับ (Crowding) มีวัตถุประสงค์หลักเพื่ออะไร?",o:["ลดการตอบสนองต่อความเครียดและลดเวลาสัตว์อยู่นอกน้ำ","เพิ่มความเครียดให้สัตว์ตื่นตัว","เร่งกระบวนการโดยไม่คำนึงถึงสวัสดิภาพ","ไม่มีข้อกำหนดเกี่ยวกับเรื่องนี้"],e:"SP-PR-08 ข้อ 6 ระบุวัตถุประสงค์เพื่อลดการตอบสนองต่อความเครียด"},
+ {t:2,q:"ข้อใดเป็นการปฏิบัติที่ห้ามทำขณะขนขึ้น-ขนลงสัตว์น้ำมีชีวิต?",o:["โยนหรือทิ้งภาชนะที่มีสัตว์อยู่","ทำงานอย่างรวดเร็วและต่อเนื่อง","ย้ายสัตว์ครั้งละน้อย ๆ","ลดการสัมผัสตัวสัตว์"],e:"SP-PR-08 ข้อ 7 ห้ามโยน ทิ้ง หรือเหยียบสัตว์"},
+ {t:2,q:"การย้ายกุ้งจากภาชนะพักลงตะกร้าก่อนบรรจุ ควรทำอย่างไรเพื่อลดการกระแทก?",o:["ทะยอยย้ายครั้งละน้อย","เทลงทั้งหมดในครั้งเดียว","ตักด้วยแรงเร็วเพื่อลดเวลา","ใช้การโยนเพื่อกระจายกุ้ง"],e:"จากวิดีโอปฏิบัติงานจริงหัวข้อ (3): ย้ายครั้งละน้อยช่วยลดการกระแทกและเวลาที่อยู่นอกน้ำ"},
+ {t:3,q:"เอกสารใดใช้บันทึกผลตรวจสัตว์น้ำก่อนจับ?",o:["FM-QC-02","FM-PR-28","FM-PR-29","DEC-PR-01"],e:"PM-PR-05 ข้อ 7 ขั้นตอนที่ 2-3 อ้างอิงบันทึกตรวจตัวอย่างก่อนจับ FM-QC-02"},
+ {t:3,q:"เมื่อพบกุ้งสีเปลี่ยน ว่ายผิดปกติ หรือไม่ตอบสนองหลังเทลงภาชนะพัก ต้องปฏิบัติอย่างไร?",o:["แยกออกและแจ้งผู้ตรวจสอบทันที ไม่นำเข้ากระบวนการขนส่งปกติ","ผสมรวมกับกุ้งปกติ","ปล่อยไว้แล้วรายงานภายหลัง","เร่งขนส่งทันทีเพื่อลดเวลา"],e:"จากภาพปฏิบัติงานจริงหัวข้อ (4) และ SP-PR-08 ข้อ 3"},
+ {t:3,q:"ตัวอย่างที่ต้องแสดงให้บริษัทพิจารณาก่อนตกลงซื้อทุกครั้งคือข้อใด?",o:["กุ้งเป็นดิบและกุ้งหลังต้ม","เฉพาะกุ้งดอง","เฉพาะภาพถ่ายบ่อเลี้ยง","เฉพาะใบแจ้งราคา"],e:"หัวข้อ (4): ต้องแสดงตัวอย่างกุ้งเป็นดิบและกุ้งหลังต้มก่อนตกลงซื้อทุกครั้ง"},
+ {t:4,q:"หากพบผู้ส่งมอบใช้วิธีการที่ไม่เป็นที่ยอมรับ บริษัทต้องดำเนินการอย่างไร?",o:["ระงับการรับวัตถุดิบจากผู้ส่งมอบรายนั้นทันที","ตักเตือนด้วยวาจาเท่านั้น","ลดราคารับซื้อ","ไม่มีมาตรการใด ๆ"],e:"SP-PR-08 ข้อ 6 บริษัทจะระงับการรับวัตถุดิบทันทีเมื่อพบการฝ่าฝืน"},
+ {t:4,q:"การทำให้สัตว์น้ำเลือดออกเพื่อฆ่า ต้องปฏิบัติอย่างไร?",o:["ต้องทำให้สลบอย่างมีประสิทธิภาพก่อน","ทำได้ทันทีเพื่อความรวดเร็ว","ทำได้เมื่อสัตว์ขาดอากาศหายใจแล้ว","ทำได้เมื่อแช่น้ำเกลือเข้มข้นก่อน"],e:"PM-PR-05 ข้อ 3: ห้ามทำให้เลือดออกโดยไม่มีการทำให้สลบอย่างมีประสิทธิภาพก่อน"},
+ {t:4,q:"ข้อใดเป็นตัวอย่างวิธีการทำให้สลบที่มีมนุษยธรรม?",o:["การทำให้สลบด้วยไฟฟ้าอย่างมีประสิทธิภาพ","การใช้ CO₂ ในน้ำ","การใช้เกลือ","การใช้แอมโมเนีย"],e:"หัวข้อ (5): ตัวอย่างการทำให้สลบด้วยไฟฟ้าอย่างมีมนุษยธรรม เทียบกับวิธีที่ห้ามใช้"},
+ {t:5,q:"ผู้เข้าอบรมที่สอบไม่ผ่านเกณฑ์ร้อยละ 80 ต้องดำเนินการอย่างไร?",o:["เข้ารับการอบรมซ้ำก่อนเริ่มปฏิบัติงาน","เริ่มปฏิบัติงานได้ทันที","รอทบทวนในปีถัดไป","ไม่ต้องบันทึกผล"],e:"เกณฑ์ใน FM-PR-28: ผู้ไม่ผ่านต้องเข้ารับการอบรมซ้ำก่อนเริ่มปฏิบัติงาน"},
+ {t:5,q:"แบบบันทึก FM-PD-73 ใช้บันทึกเรื่องใด?",o:["การพักสัตว์ / การทำให้สลบ","การขนส่ง","การทบทวนรายสัปดาห์","การฝึกอบรม"],e:"PM-PR-05 ข้อ 8: FM-PD-73 = บันทึกการพักสัตว์/สลบ"},
+ {t:5,q:"ผู้ฝึกอบรมด้านสวัสดิภาพสัตว์ต้องเป็นผู้ใด?",o:["ผู้มีความสามารถ (Competent person) เช่น QA/QC หรือวิทยากรภายนอกที่มีคุณสมบัติเหมาะสม","ผู้เข้าอบรมรุ่นก่อนหน้า","ผู้ส่งมอบ (แพ)","บุคคลใดก็ได้ที่ว่างในวันนั้น"],e:"สไลด์เกณฑ์การประเมินผล: ผู้ฝึกอบรมคือ Competent person ได้แก่ QA/QC หรือวิทยากรภายนอกที่มีคุณสมบัติ"}
+]};
+
+/* ---------- state ---------- */
+var S={mode:"pre",info:{name:"",emp:"",group:0},qs:[],idx:0,view:"start",saved:null,startedAt:0};
+var DB=null,USER=null,ADMIN=false,rows=[],unsub=null;
+var $=function(s){return document.querySelector(s)};
+var main=$("#main");
+function esc(t){var d=document.createElement("div");d.textContent=t;return d.innerHTML}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x}return a}
+var LET=["ก","ข","ค","ง"];
+
+function buildQs(mode){
+  return BANK[mode].map(function(q,i){
+    var opts=shuffle(q.o.map(function(t,k){return {t:t,ok:k===0}}));
+    return {t:q.t,q:q.q,e:q.e,opts:opts,pick:-1,no:i+1};
+  });
+}
+
+/* ---------- screens ---------- */
+function renderStart(){
+  S.view="start";
+  var modeBtn=function(m,title,sub){return '<button type="button" data-mode="'+m+'" aria-pressed="'+(S.mode===m)+'">'+title+'<small>'+sub+'</small></button>'};
+  main.innerHTML='<div class="stack">'+
+   '<div><h1>'+(S.mode==="pre"?"แบบทดสอบก่อนอบรม (Pretest)":"แบบทดสอบหลังอบรม (Posttest)")+'</h1>'+
+   '<p class="muted" style="margin:6px 0 0">การฝึกอบรมด้านสวัสดิภาพสัตว์น้ำ 6 หัวข้อ · 18 ข้อ · เลือกคำตอบที่ถูกที่สุด 1 ข้อ</p></div>'+
+   '<div class="card stack">'+
+     '<div><label>ประเภทแบบทดสอบ</label><div class="seg">'+modeBtn("pre","Pretest","ก่อนเริ่มอบรม ใช้วัดความรู้พื้นฐาน")+modeBtn("post","Posttest","หลังอบรมจบ ใช้ประเมินผ่าน/ไม่ผ่าน")+'</div></div>'+
+     '<div><label for="fName">ชื่อ-นามสกุล</label><input type="text" id="fName" autocomplete="name" value="'+esc(S.info.name)+'"></div>'+
+     '<div><label for="fEmp">รหัสพนักงาน หรือ ชื่อแพ/ผู้ส่งมอบ</label><input type="text" id="fEmp" value="'+esc(S.info.emp)+'"></div>'+
+     '<div><label for="fGroup">กลุ่มผู้เข้าอบรม</label><select id="fGroup">'+GROUPS.map(function(g,i){return '<option value="'+i+'"'+(S.info.group===i?" selected":"")+'>'+g+'</option>'}).join("")+'</select></div>'+
+     '<button class="btn" id="go" type="button">เริ่มทำแบบทดสอบ</button>'+
+   '</div>'+
+   '<ul class="rules">'+
+     '<li>เกณฑ์ผ่าน: ตอบถูกไม่น้อยกว่าร้อยละ 80 (ถูกอย่างน้อย 15 จาก 18 ข้อ)</li>'+
+     '<li>ผู้ไม่ผ่านต้องเข้ารับการอบรมซ้ำก่อนเริ่มปฏิบัติงาน และบันทึกผลใน FM-PR-28</li>'+
+     '<li>ใช้ชื่อและรหัสเดียวกันทั้ง Pretest และ Posttest เพื่อเปรียบเทียบผลการพัฒนา</li>'+
+   '</ul></div>';
+  main.querySelectorAll("[data-mode]").forEach(function(b){b.onclick=function(){grab();S.mode=b.dataset.mode;renderStart()}});
+  $("#go").onclick=function(){
+    grab();
+    if(!S.info.name.trim()||!S.info.emp.trim()){
+      var n=document.createElement("div");n.className="notice";n.textContent="กรุณากรอกชื่อ-นามสกุล และรหัสพนักงานหรือชื่อแพให้ครบก่อนเริ่ม";
+      if(!$(".notice"))$(".card").appendChild(n);return}
+    S.qs=buildQs(S.mode);S.idx=0;S.saved=null;S.startedAt=Date.now();renderQ();
+  };
+}
+function grab(){var a=$("#fName"),b=$("#fEmp"),c=$("#fGroup");if(a){S.info.name=a.value;S.info.emp=b.value;S.info.group=+c.value}}
+
+function renderQ(){
+  S.view="quiz";window.scrollTo(0,0);
+  var q=S.qs[S.idx],n=S.qs.length,done=S.qs.filter(function(x){return x.pick>=0}).length;
+  var last=S.idx===n-1;
+  main.innerHTML='<div class="stack"><div class="prog"><span class="muted" style="font-variant-numeric:tabular-nums;white-space:nowrap">ข้อ '+(S.idx+1)+' / '+n+'</span><div class="bar"><i style="width:'+(done/n*100)+'%"></i></div><span class="muted" style="white-space:nowrap">ตอบแล้ว '+done+'</span></div>'+
+   '<div class="card"><span class="chip">หัวข้อ ('+(q.t+1)+') '+esc(TOPICS[q.t].n)+'</span>'+
+   '<p class="q">'+esc(q.q)+'</p>'+
+   '<div class="opts" role="radiogroup">'+q.opts.map(function(o,i){return '<label class="opt'+(q.pick===i?" sel":"")+'"><input type="radio" name="o" value="'+i+'"'+(q.pick===i?" checked":"")+'><span class="l">'+LET[i]+'.</span><span>'+esc(o.t)+'</span></label>'}).join("")+'</div>'+
+   '<div class="nav"><button class="btn ghost" id="prev" type="button"'+(S.idx===0?" disabled":"")+'>ย้อนกลับ</button>'+
+   (last?'<button class="btn" id="submit" type="button">ส่งคำตอบ</button>':'<button class="btn" id="next" type="button">ข้อถัดไป</button>')+'</div></div>'+
+   '<div class="dots" aria-label="ไปยังข้อ">'+S.qs.map(function(x,i){return '<button type="button" data-i="'+i+'" class="'+(x.pick>=0?"done ":"")+(i===S.idx?"cur":"")+'" aria-label="ข้อ '+(i+1)+'">'+(i+1)+'</button>'}).join("")+'</div></div>';
+  main.querySelectorAll("input[name=o]").forEach(function(r){r.onchange=function(){q.pick=+r.value;renderQ()}});
+  $("#prev").onclick=function(){S.idx--;renderQ()};
+  if($("#next"))$("#next").onclick=function(){S.idx++;renderQ()};
+  main.querySelectorAll(".dots button").forEach(function(b){b.onclick=function(){S.idx=+b.dataset.i;renderQ()}});
+  if($("#submit"))$("#submit").onclick=function(){
+    var miss=S.qs.filter(function(x){return x.pick<0});
+    if(miss.length){S.idx=S.qs.indexOf(miss[0]);renderQ();var n2=document.createElement("div");n2.className="notice";n2.style.marginTop="12px";n2.textContent="ยังไม่ได้ตอบ "+miss.length+" ข้อ (ข้อที่ "+miss.map(function(x){return x.no}).join(", ")+") กรุณาตอบให้ครบก่อนส่ง";$(".card").appendChild(n2);return}
+    finish();
+  };
+}
+
+function calc(){
+  var tot=S.qs.length,sc=0,tp=TOPICS.map(function(){return [0,0]});
+  S.qs.forEach(function(q){var ok=q.opts[q.pick].ok;tp[q.t][1]++;if(ok){sc++;tp[q.t][0]++}});
+  return {score:sc,total:tot,pct:Math.round(sc/tot*1000)/10,topics:tp};
+}
+function finish(){
+  var r=calc();S.res=r;
+  var rec={name:S.info.name.trim(),emp:S.info.emp.trim(),group:GROUPS[S.info.group],mode:S.mode,score:r.score,total:r.total,pct:r.pct,
+    pass:r.pct>=PASS_PCT,topics:r.topics.map(function(t){return t[0]}),secs:Math.round((Date.now()-S.startedAt)/1000),ts:new Date().toISOString()};
+  S.rec=rec;S.saved="pending";renderResult();
+  if(!DB&&RESULT_ENDPOINT){
+    fetch(RESULT_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(rec)}).then(function(){S.saved="ok";renderResult()},function(){S.saved="fail";renderResult()});return}
+  if(!DB){S.saved="fail";renderResult();return}
+  DB.collection("results").add(rec).then(function(){S.saved="ok";renderResult()},function(){S.saved="fail";renderResult()});
+}
+function summaryText(){
+  var r=S.res,m=S.mode==="pre"?"Pretest":"Posttest";
+  return "ผล"+m+" สวัสดิภาพสัตว์น้ำ\nชื่อ: "+S.rec.name+" ("+S.rec.emp+")\nกลุ่ม: "+S.rec.group+"\nคะแนน: "+r.score+"/"+r.total+" ("+r.pct+"%)"+(S.mode==="post"?" · "+(S.rec.pass?"ผ่าน":"ไม่ผ่าน"):"")+"\nวันที่: "+new Date(S.rec.ts).toLocaleDateString("th-TH");
+}
+function renderResult(){
+  S.view="result";window.scrollTo(0,0);
+  var r=S.res,pre=S.mode==="pre",pass=r.pct>=PASS_PCT;
+  var badge=pre?'<span class="badge base">ผลพื้นฐานก่อนอบรม</span>':(pass?'<span class="badge pass">ผ่านเกณฑ์</span>':'<span class="badge fail">ไม่ผ่านเกณฑ์</span>');
+  var msg=pre?"ผลนี้ใช้เป็นฐานเปรียบเทียบกับ Posttest หลังอบรม เฉลยจะแสดงหลังทำ Posttest":
+    (pass?"ตอบถูกไม่น้อยกว่าร้อยละ 80 ให้ผู้ฝึกอบรมบันทึกผลลงใน FM-PR-28":"ตอบถูกน้อยกว่าร้อยละ 80 ต้องเข้ารับการอบรมซ้ำก่อนเริ่มปฏิบัติงาน และบันทึกผลใหม่ใน FM-PR-28");
+  var save=S.saved==="ok"?'<div class="okmsg">ส่งผลถึงผู้ฝึกอบรมเรียบร้อยแล้ว</div>':
+    S.saved==="pending"?'<div class="muted">กำลังส่งผล…</div>':
+    '<div class="notice">ผลยังไม่ได้ส่งถึงผู้ฝึกอบรมอัตโนมัติ กรุณากดดาวน์โหลดหรือคัดลอกสรุปผลด้านล่าง แล้วส่งให้ผู้ฝึกอบรม</div>';
+  var tb=r.topics.map(function(t,i){var p=t[0]/t[1]*100;var col=p>=80?"var(--good)":(p>=50?"var(--warn)":"var(--bad)");
+    return '<div class="nm">('+(i+1)+') '+esc(TOPICS[i].n)+'<br><span class="muted" style="font-size:12px">'+esc(TOPICS[i].ref)+'</span></div><div class="v">'+t[0]+'/'+t[1]+'</div><div class="tr"><i style="width:'+p+'%;background:'+col+'"></i></div>'}).join("");
+  var review="";
+  if(!pre){review='<div class="card stack"><h2>เฉลยและคำอธิบาย</h2>'+S.qs.map(function(q){
+    return '<div class="rev"><span class="chip">ข้อ '+q.no+' · หัวข้อ ('+(q.t+1)+')</span><p class="q" style="font-size:16px">'+esc(q.q)+'</p><div class="opts">'+
+      q.opts.map(function(o,i){var c=o.ok?"ok":(q.pick===i?"no":"");return '<div class="opt '+c+'"><span class="l">'+LET[i]+'.</span><span>'+esc(o.t)+(q.pick===i?' <b>(คำตอบของคุณ)</b>':'')+(o.ok?' ✓':'')+'</span></div>'}).join("")+
+      '</div><p class="exp">'+esc(q.e)+'</p></div>'}).join("")+'</div>'}
+  main.innerHTML='<div class="stack"><div class="card stack"><div class="muted">'+esc(S.rec.name)+' · '+esc(S.rec.emp)+'</div>'+
+   '<div class="score"><span class="n">'+r.score+'<span style="font-size:24px;color:var(--muted)">/'+r.total+'</span></span><span style="font:600 22px var(--font-display)">'+r.pct+'%</span>'+badge+'</div>'+
+   '<p class="muted" style="margin:0">'+msg+'</p>'+save+
+   '<div class="row"><button class="btn ghost" id="copy" type="button">คัดลอกสรุปผล</button><button class="btn ghost" id="dl" type="button">ดาวน์โหลดผล (.csv)</button><button class="btn ghost" id="again" type="button">กลับหน้าแรก</button></div></div>'+
+   '<div class="card"><h3 style="margin-bottom:12px">คะแนนรายหัวข้อ</h3><div class="tbar">'+tb+'</div></div>'+review+'</div>';
+  $("#copy").onclick=function(){var t=summaryText(),b=$("#copy");
+    var ok=function(){b.textContent="คัดลอกแล้ว"};
+    try{navigator.clipboard.writeText(t).then(ok,function(){fallbackCopy(t,b)})}catch(e){fallbackCopy(t,b)}};
+  $("#dl").onclick=function(){var x=S.rec,h=["วันที่","ชื่อ","รหัส/แพ","กลุ่ม","ประเภท","คะแนน","เต็ม","ร้อยละ","ผล"].concat(TOPICS.map(function(t,i){return "หัวข้อ"+(i+1)}));
+    var v=[x.ts.slice(0,16).replace("T"," "),x.name,x.emp,x.group,x.mode==="pre"?"Pretest":"Posttest",x.score,x.total,x.pct,x.mode==="post"?(x.pass?"ผ่าน":"ไม่ผ่าน"):""].concat(x.topics);
+    var q=function(a){return a.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(",")};
+    var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+q(h)+"\n"+q(v)],{type:"text/csv;charset=utf-8"}));a.download="ผลสอบ_"+x.emp+"_"+x.mode+".csv";document.body.appendChild(a);a.click();a.remove()};
+  $("#again").onclick=function(){S.info={name:"",emp:"",group:0};renderStart()};
+}
+function fallbackCopy(t,b){var ta=document.createElement("textarea");ta.value=t;ta.style.cssText="width:100%;margin-top:8px";b.parentNode.appendChild(ta);ta.select();b.textContent="เลือกข้อความแล้ว กด Ctrl+C"}
+
+/* ---------- ผู้ดูแล ---------- */
+function renderAdmin(){
+  S.view="admin";
+  var pre=rows.filter(function(r){return r.mode==="pre"}),post=rows.filter(function(r){return r.mode==="post"});
+  var avg=function(a){return a.length?Math.round(a.reduce(function(s,r){return s+r.pct},0)/a.length*10)/10:null};
+  var key=function(r){return (r.name+"|"+r.emp).toLowerCase().replace(/\s+/g,"")};
+  var latest={};rows.slice().sort(function(a,b){return a.ts<b.ts?-1:1}).forEach(function(r){var k=key(r);latest[k]=latest[k]||{name:r.name,emp:r.emp,group:r.group};latest[k][r.mode]=r});
+  var people=Object.keys(latest).map(function(k){return latest[k]});
+  var pairs=people.filter(function(p){return p.pre&&p.post});
+  var gain=pairs.length?Math.round(pairs.reduce(function(s,p){return s+p.post.pct-p.pre.pct},0)/pairs.length*10)/10:null;
+  var passN=post.filter(function(r){return r.pass}).length;
+  var f=function(v){return v==null?"–":v+"%"};
+  main.innerHTML='<div class="stack"><h1>ผลการสอบของผู้เข้าอบรม</h1>'+
+   '<div class="stats"><div><b>'+people.length+'</b><span>ผู้เข้าสอบ (คน)</span></div><div><b>'+f(avg(pre))+'</b><span>เฉลี่ย Pretest ('+pre.length+' ครั้ง)</span></div><div><b>'+f(avg(post))+'</b><span>เฉลี่ย Posttest ('+post.length+' ครั้ง)</span></div><div><b>'+(gain==null?"–":(gain>0?"+":"")+gain)+'</b><span>พัฒนาการเฉลี่ย (จุด %)</span></div><div><b>'+(post.length?passN+"/"+post.length:"–")+'</b><span>ผ่านเกณฑ์ 80% (Posttest)</span></div></div>'+
+   '<div class="row"><button class="btn ghost" id="csv" type="button"'+(rows.length?"":" disabled")+'>ดาวน์โหลด CSV</button></div>'+
+   (people.length?'<div class="tablewrap"><table><thead><tr><th>ชื่อ-นามสกุล</th><th>รหัส/แพ</th><th>กลุ่ม</th><th>Pre</th><th>Post</th><th>ผลต่าง</th><th>ผล</th></tr></thead><tbody>'+
+    people.map(function(p){var d=p.pre&&p.post?Math.round((p.post.pct-p.pre.pct)*10)/10:null;
+      return '<tr><td>'+esc(p.name)+'</td><td>'+esc(p.emp)+'</td><td>'+esc(p.group||"")+'</td><td>'+(p.pre?p.pre.score+"/"+p.pre.total:"–")+'</td><td>'+(p.post?p.post.score+"/"+p.post.total:"–")+'</td><td>'+(d==null?"–":(d>0?"+":"")+d)+'</td><td>'+(p.post?(p.post.pass?'<span style="color:var(--good)">ผ่าน</span>':'<span style="color:var(--bad)">ไม่ผ่าน — อบรมซ้ำ</span>'):"–")+'</td></tr>'}).join("")+'</tbody></table></div>':
+    '<div class="card muted">ยังไม่มีผลการสอบ เมื่อผู้เข้าอบรมส่งคำตอบ ผลจะแสดงที่นี่ทันที</div>')+'</div>';
+  $("#csv").onclick=function(){
+    var head=["วันที่","ชื่อ","รหัส/แพ","กลุ่ม","ประเภท","คะแนน","เต็ม","ร้อยละ","ผล"].concat(TOPICS.map(function(t,i){return "หัวข้อ"+(i+1)}));
+    var lines=[head].concat(rows.slice().sort(function(a,b){return a.ts<b.ts?-1:1}).map(function(r){return [r.ts.slice(0,16).replace("T"," "),r.name,r.emp,r.group,r.mode==="pre"?"Pretest":"Posttest",r.score,r.total,r.pct,r.mode==="post"?(r.pass?"ผ่าน":"ไม่ผ่าน"):"",].concat(r.topics||[])}));
+    var csv="﻿"+lines.map(function(l){return l.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
+    claude.use("downloads").then(function(d){if(d)d.save({filename:"ผลสอบสวัสดิภาพสัตว์น้ำ.csv",data:csv}).catch(function(){})});
+  };
+}
+
+/* ---------- tabs / init ---------- */
+function setTab(t){$("#tabExam").setAttribute("aria-pressed",t==="exam");$("#tabAdmin").setAttribute("aria-pressed",t==="admin");
+  if(t==="admin")renderAdmin();else if(S.view==="admin")renderStart()}
+$("#tabExam").onclick=function(){setTab("exam")};
+$("#tabAdmin").onclick=function(){setTab("admin")};
+renderStart();
+
+(async function(){
+  try{
+    if(!window.claude||!claude.use)return;
+    DB=await claude.use("db");
+    USER=await claude.use("user");
+    if(USER&&await USER.canEdit()&&DB){
+      ADMIN=true;$("#tabs").hidden=false;
+      DB.collection("results").orderBy("ts","desc").limit(500).onSnapshot(function(s){
+        rows=s.docs.map(function(d){return d.data()});if(S.view==="admin")renderAdmin()},function(){});
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
